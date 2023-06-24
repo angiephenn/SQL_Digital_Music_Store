@@ -1,0 +1,37 @@
+-- Question 1: What are the most played Genres from 2009-2013 according to the Playlist?
+SELECT G.Name AS Genre, COUNT(T.TrackId) AS most_played
+FROM Genre G
+JOIN Track T ON G.GenreId = T.GenreId
+JOIN PlaylistTrack Pt ON T.TrackId = Pt.TrackId
+JOIN Playlist P ON Pt.PlaylistId = P.PlaylistId
+GROUP BY Genre
+ORDER BY most_played DESC;
+
+-- Question 2: Which are the best-selling 10 Genres [2009-2013] in regard to total_amount_paid per Genre?
+SELECT G.Name AS Genre, SUM(Il.Quantity * Il.UnitPrice) AS most_sold_in_usd
+FROM Invoice I
+JOIN InvoiceLine Il ON I.InvoiceId = Il.InvoiceId
+JOIN Track T ON T.TrackId = Il.TrackId
+JOIN Genre G ON G.GenreId = T.GenreId
+GROUP BY Genre
+ORDER BY most_sold_in_usd DESC
+LIMIT 10;
+
+-- Question 3: How high is the demand for Rock Music in different Countries?
+SELECT I.BillingCountry AS Country, SUM(Il.Quantity * Il.UnitPrice) AS most_sold_in_usd
+FROM Invoice I
+JOIN InvoiceLine Il ON I.InvoiceId = Il.InvoiceId
+JOIN Track T ON T.TrackId = Il.TrackId
+JOIN Genre G ON G.GenreId = T.GenreId
+WHERE G.Name = "Rock"
+GROUP BY Country
+ORDER BY most_sold_in_usd DESC;
+
+-- Question 4: How did the monthly customer payments for Rock tracks develop within the past years (2009-2013)?
+SELECT STRFTIME('%Y', I.InvoiceDate) AS year, STRFTIME('%m', I.InvoiceDate) AS month, SUM(I.Total) AS total_payments_rock_usd
+FROM Invoice I
+JOIN InvoiceLine Il ON I.InvoiceId = Il.InvoiceId
+JOIN Track T ON T.TrackId = Il.TrackId
+JOIN Genre G ON G.GenreId = T.GenreId
+WHERE G.Name = "Rock"
+GROUP BY year, month;
